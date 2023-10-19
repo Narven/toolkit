@@ -4,7 +4,7 @@ A simple example how to create a reusable Go module with commonly used tools.
 
 The included tools are:
 
-- [ ] Read JSON
+- [x] Read JSON
 - [ ] Write JSON
 - [ ] Produce a JSON encoded error response
 - [x] Upload a file to a specified directory
