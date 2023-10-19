@@ -10,7 +10,7 @@ The included tools are:
 - [x] Upload a file to a specified directory
 - [x] Download a static file
 - [x] Get a random string of length n
-- [ ] Post JSON to a remote service
+- [x] Post JSON to a remote service
 - [x] Create a directory, including all parent directories, if it does not already exists
 - [x] Create a URL safe slug from a string
 

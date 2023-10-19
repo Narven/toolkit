@@ -1,6 +1,7 @@
 package toolkit
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
@@ -150,7 +151,6 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 				upFiles = append(upFiles, &uploadedFile)
 
 				return upFiles, nil
-
 			}(uploaded)
 
 			fmt.Println(uploadedFiles)
@@ -184,7 +184,7 @@ func (t *Tools) Slugify(s string) (string, error) {
 		return "", errors.New("empty string not permitted")
 	}
 
-	var re = regexp.MustCompile(`[^a-z\d]+`)
+	re := regexp.MustCompile(`[^a-z\d]+`)
 	slug := strings.Trim(re.ReplaceAllString(strings.ToLower(s), "-"), "-")
 
 	if len(slug) == 0 {
@@ -302,4 +302,37 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 	payload.Message = err.Error()
 
 	return t.WriteJSON(w, statusCode, payload)
+}
+
+// PushJSONToRemote posts arbitrary data to some URL as JSON, and returns the
+// response, status code and error if any
+func (t *Tools) PushJSONToRemote(uri string, data interface{}, client ...*http.Client) (*http.Response, int, error) {
+	// create json
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// check fo custom http client
+	httpClient := &http.Client{}
+	if len(client) > 0 {
+		httpClient = client[0]
+	}
+
+	// build the request and set the header
+	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, 0, err
+	}
+	request.Header.Set("Content-Type", "application/json")
+
+	// call remote uri
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer response.Body.Close()
+
+	// send response back
+	return response, response.StatusCode, nil
 }
